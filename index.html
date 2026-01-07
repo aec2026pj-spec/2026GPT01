@@ -1,17 +1,117 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026 AEC Report</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff
+}
+.container{max-width:480px;margin:auto;padding:16px}
+.card{
+  background:rgba(255,255,255,.12);
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.35)
+}
+h1,h2{text-align:center}
+input,select,textarea,button{
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border-radius:10px;
+  border:none;
+  font-size:16px
+}
+button{
+  background:#00e5ff;
+  color:#000;
+  font-weight:bold
+}
+.menu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+img{width:100%;border-radius:12px;margin-top:10px}
+.loading{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  display:none
+}
+</style>
+</head>
+
+<body>
+<div class="loading" id="loading">กำลังบันทึกข้อมูล...</div>
+
+<div class="container">
+<h1>2026 AEC Report</h1>
+
+<div class="card">
+<input id="name" placeholder="ชื่อเล่น">
+<select id="region">
+<option>BKK</option><option>CR</option><option>ER</option>
+<option>NER</option><option>NR</option><option>SR</option>
+<option>TE</option><option>DR</option><option>OFFICE</option>
+</select>
+<button onclick="saveProfile()">บันทึกข้อมูล</button>
+</div>
+
+<div class="card menu">
+<button onclick="openForm('Site Check In')">📍 Site Check In</button>
+<button onclick="openForm('Check In')">▶ Check In</button>
+<button onclick="openForm('Check Out')">⏹ Check Out</button>
+<button onclick="openSimple('Report')">📄 Report</button>
+<button onclick="openSimple('Expenses')">💰 Expenses</button>
+<button onclick="openSimple('Capture')">📸 Capture</button>
+</div>
+
+<div id="content"></div>
+</div>
+
 <script>
-let img64 = null;
+/* ================= GLOBAL ================= */
+let imageBase64 = null;
+let currentStatus = '';
 
-document.addEventListener('change', function(e){
-  if(e.target.id === 'photoInput'){
-    const file = e.target.files[0];
-    if(!file) return;
+const nameEl = document.getElementById('name');
+const regionEl = document.getElementById('region');
+const content = document.getElementById('content');
+const loading = document.getElementById('loading');
 
-    const reader = new FileReader();
-    reader.onload = function(ev){
-      img64 = ev.target.result.split(',')[1];
-      pv.innerHTML = `<img src="${ev.target.result}">`;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-</script>
+nameEl.value = localStorage.name || '';
+regionEl.value = localStorage.region || 'BKK';
+
+/* ================= PROFILE ================= */
+function saveProfile(){
+  if(!nameEl.value) return alert('กรุณาใส่ชื่อเล่น');
+  localStorage.name = nameEl.value;
+  localStorage.region = regionEl.value;
+  alert('บันทึกข้อมูลแล้ว');
+}
+
+/* ================= MAIN FORM ================= */
+function openForm(status){
+  currentStatus = status;
+  imageBase64 = null;
+
+  content.innerHTML = `
+  <div class="card">
+    <h2>${status}</h2>
+    <input id="buddy" placeholder="ทำงานกับใคร">
+    <input id="car" placeholder="ใช้รถใคร">
+    <input id="mile" placeholder
