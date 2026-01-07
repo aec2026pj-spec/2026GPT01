@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 AEC Report</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  margin: 0;
+  color: #fff;
+}
+.container {
+  max-width: 480px;
+  margin: auto;
+  padding: 20px;
+}
+.card {
+  background: rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.3);
+}
+h1 {
+  text-align: center;
+}
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+}
+button {
+  background: #00c6ff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
+.menu {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 12px;
+}
+.menu button {
+  background: #fff;
+  color: #000;
+}
+.preview {
+  margin-top: 10px;
+}
+.preview img {
+  width: 100%;
+  border-radius: 12px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>2026 AEC Report</h1>
+
+<div class="card">
+<label>ชื่อเล่น</label>
+<input id="name">
+
+<label>ภาคที่สังกัด</label>
+<select id="region">
+<option>BKK</option><option>CR</option><option>ER</option>
+<option>NER</option><option>NR</option><option>SR</option>
+<option>TE</option><option>DR</option><option>OFFICE</option>
+</select>
+
+<button onclick="saveProfile()">บันทึก</button>
+</div>
+
+<div class="card menu">
+<button onclick="selectMenu('Site Check In')"><i class="fa fa-map-pin"></i> Site Check In</button>
+<button onclick="selectMenu('Check In')"><i class="fa fa-sign-in"></i> Check In</button>
+<button onclick="selectMenu('Check Out')"><i class="fa fa-sign-out"></i> Check Out</button>
+<button onclick="selectMenu('Report')"><i class="fa fa-file"></i> Report</button>
+<button onclick="selectMenu('Expenses')"><i class="fa fa-wallet"></i> Expenses</button>
+<button onclick="selectMenu('Capture')"><i class="fa fa-camera"></i> Capture</button>
+</div>
+
+<div id="formArea"></div>
+
+</div>
+
+<script>
+const nameEl = document.getElementById('name');
+const regionEl = document.getElementById('region');
+nameEl.value = localStorage.getItem('name') || '';
+regionEl.value = localStorage.getItem('region') || 'BKK';
+
+function saveProfile(){
+  localStorage.setItem('name', nameEl.value);
+  localStorage.setItem('region', regionEl.value);
+  alert('บันทึกข้อมูลแล้ว');
+}
+
+function selectMenu(menu){
+  document.getElementById('formArea').innerHTML = `
+    <div class="card">
+      <h3>${menu}</h3>
+      <input placeholder="ทำงานกับใคร" id="buddy">
+      <input placeholder="ใช้รถใคร" id="car">
+      <input placeholder="เลขไมล์" id="mileage">
+      <input placeholder="สถานที่" id="place">
+      <input placeholder="PLAN / BRIFE" id="plan">
+      <input type="file" accept="image/*" onchange="previewImg(event)">
+      <div class="preview" id="preview"></div>
+      <button onclick="submit('${menu}')">ส่งข้อมูล</button>
+    </div>`;
+}
+
+function previewImg(e){
+  const img = document.createElement('img');
+  img.src = URL.createObjectURL(e.target.files[0]);
+  document.getElementById('preview').innerHTML='';
+  document.getElementById('preview').appendChild(img);
+}
+
+function submit(status){
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const data = {
+      name: nameEl.value,
+      region: regionEl.value,
+      status,
+      buddy: buddy.value,
+      car: car.value,
+      mileage: mileage.value,
+      place: place.value,
+      plan: plan.value,
+      geoStamp: new Date().toISOString(),
+      geoCode: pos.coords.latitude+','+pos.coords.longitude,
+      geoAddress: '',
+      device: /Mobi/.test(navigator.userAgent) ? 'Mobile':'PC'
+    };
+    google.script.run.withSuccessHandler(()=>{
+      alert('บันทึกสำเร็จ');
+      location.reload();
+    }).saveMain(data);
+  });
+}
+</script>
+
+</body>
+</html>
